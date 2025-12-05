@@ -1,12 +1,10 @@
 <?xml version="1.0" ?>
 <sdf version="1.8">
   <actor name="DoctorFemaleWalk">
-    <pose>0 0 1.0 0 0 0</pose>
     <skin>
       <filename>model://config/skins/DoctorFemaleWalk/meshes/DoctorFemaleWalk.dae</filename>
       <scale>1.0</scale>
     </skin>
-    <pose>0 0 0 0 0 0</pose>
     <animation name="walk">
       <filename>model://config/skins/DoctorFemaleWalk/meshes/DoctorFemaleWalk.dae</filename>
       <scale>1.0</scale>

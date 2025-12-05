@@ -91,7 +91,8 @@ def generate_launch_description():
             '-x', x_pose,
             '-y', y_pose,
             '-z', z_pose,
-            '-Y', yaw_pose
+            '-Y', yaw_pose,
+            '-allow_renaming' # so you can spawn multiple actors
         ],
         output='screen'              
     )
