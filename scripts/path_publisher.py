@@ -10,7 +10,7 @@ class PoseArrayPublisher(Node):
         super().__init__('pose_array_publisher_node')
         
         # Create the publisher with topic "/cmd_pose_array" and message type "PoseArray"
-        self.publisher = self.create_publisher(PoseArray, '/cmd_path', 10)
+        self.publisher = self.create_publisher(PoseArray, 'cmd_path', 10)
         
         # Create a timer to publish once after a short delay (to ensure subscriber is ready)
         self.timer = self.create_timer(1.0, self.publish_pose_array)
