@@ -30,14 +30,16 @@ def generate_launch_description():
     )
 
     verbose = LaunchConfiguration('verbose')
-    # get configuration
-    verbose = LaunchConfiguration('verbose')
     headless = LaunchConfiguration('headless')
     world_name = LaunchConfiguration('world_name')
 
-    # add to environment 
+    # The model path ("pkg_gazebo_ros_actor_plugin") needs to be added to the GZ_SIM_RESOURCE_PATH environment variable
+    # to be able to find the models when spawning them in Gazebo. If this is not done here,
+    # the models spawned into the world later will not be found. This includes .world-files
+    # that might be in other packages as well.
+    # Since this environment variable is appended, you can also easily add this manually
+    # in any terminal before you start Gazebo within that terminal. 
     gz_resource_path = AppendEnvironmentVariable('GZ_SIM_RESOURCE_PATH', pkg_gazebo_ros_actor_plugin)    
-    #
     gazebo_arguments = PythonExpression([f"'{world_file} -r'", " + (' -v' if '", verbose, "' == 'True' else '')", " + (' -s' if '", headless, "' == 'True' else '')"])
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py')]),
@@ -46,8 +48,12 @@ def generate_launch_description():
         }.items()
     )
     
+    # for the ROS-Gazebo bridge, we need to bridge the /clock topic (used by node with use_sim_time=True) and the /spawn_entity service
+    # the spawn-entity service is used to spawn models into the Gazebo world using ROS2 service calls (see spawn.launch.py)
     ros_gz_clock_bridge = PythonExpression(['"/world/', world_name, '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock"'])
     ros_gz_spawn_entity_bridge = PythonExpression(['"/world/', world_name, '/create@ros_gz_interfaces/srv/SpawnEntity"'])
+    # The clock topic needs to be remapped from /world/<world_name>/clock to /clock since nodes expect the /clock topic in ROS2
+    # without namespaces.
     remappings_gz_clock = [(PythonExpression(['"/world/', world_name, '/clock"']), '/clock')]
     ros_gz_bridge = Node(
         package='ros_gz_bridge',

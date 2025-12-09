@@ -1,0 +1,50 @@
+<?xml version="1.0" ?>
+<sdf version="1.8" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Arguments -->
+  <xacro:arg name="actor_name" default="DoctorFemaleWalk"/>
+  <xacro:arg name="gazebo_topic_prefix" default=""/>
+  <xacro:arg name="follow_mode" default="velocity"/>
+  <xacro:arg name="linear_velocity" default="1.0"/>
+
+  <!-- Validate follow_mode -->
+  <xacro:if value="${'$(arg follow_mode)' != 'velocity' and '$(arg follow_mode)' != 'path'}">
+    <xacro:error level="fatal">
+      Invalid follow_mode '$(arg follow_mode)'. Must be 'velocity' or 'path'.
+    </xacro:error>
+  </xacro:if>
+
+  <!-- Clean topic construction using expressions (no nested if/unless inside property) -->
+  <xacro:property name="prefix" value="$(arg gazebo_topic_prefix)"/>
+  <xacro:property name="name"   value="$(arg actor_name)"/>
+
+  <!-- Clean namespace handling -->
+  <xacro:property name="ns" value="${prefix + '/' if prefix else ''}${name}" />
+  <xacro:property name="vel_topic"  value="${ns}/cmd_vel" />
+  <xacro:property name="path_topic" value="${ns}/cmd_path" />
+
+  <!-- SDF output -->
+  <actor name="$(arg actor_name)">
+    <skin>
+      <filename>model://config/skins/DoctorFemaleWalk/meshes/DoctorFemaleWalk.dae</filename>
+      <scale>1.0</scale>
+    </skin>
+    <animation name="walk">
+      <filename>model://config/skins/DoctorFemaleWalk/meshes/DoctorFemaleWalk.dae</filename>
+      <scale>1.0</scale>
+      <interpolate_x>true</interpolate_x>
+    </animation>
+    <plugin filename="libgazebo_ros_actor_plugin.so"
+            name="gazebo_ros_actor_plugin::GazeboRosActorCommand">
+      <follow_mode>$(arg follow_mode)</follow_mode>
+      <vel_topic>${vel_topic}</vel_topic>
+      <path_topic>${path_topic}</path_topic>
+      <animation_factor>1.0</animation_factor>
+      <linear_tolerance>0.1</linear_tolerance>
+      <linear_velocity>$(arg linear_velocity)</linear_velocity>
+      <angular_tolerance>0.0872</angular_tolerance>
+      <angular_velocity>2.5</angular_velocity>
+      <default_rotation>1.57</default_rotation>
+    </plugin>
+  </actor>
+</sdf>
