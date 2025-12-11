@@ -26,6 +26,7 @@ def generate_launch_description():
     namespace = LaunchConfiguration('actor_namespace', default='')
     follow_mode = LaunchConfiguration('follow_mode', default='velocity')
     linear_velocity = LaunchConfiguration('max_velocity', default='1.0')
+    publish_pose = LaunchConfiguration('publish_pose', default='true')
     gazebo_topic_prefix = LaunchConfiguration('gazebo_topic_prefix', default='')
     gazebo_resource_path = LaunchConfiguration('gazebo_resource_path')
 
@@ -93,6 +94,12 @@ def generate_launch_description():
         name='max_velocity',
         default_value='3.0',
         description='Maximum translational velocity of actor. Must be positive float.'
+    )
+
+    declare_publish_pose_cmd = DeclareLaunchArgument(
+        name='publish_pose',
+        default_value='true',
+        description='If Actor should publish its gazebo-world-frame pose to a topic.'
     )
 
     declare_gazebo_topic_prefix_cmd = DeclareLaunchArgument(
@@ -167,6 +174,7 @@ def generate_launch_description():
     ld.add_action(declare_actor_namespace_cmd)
     ld.add_action(declare_follow_mode_cmd)
     ld.add_action(declare_max_velocity_cmd)
+    ld.add_action(declare_publish_pose_cmd)
     ld.add_action(declare_gazebo_topic_prefix_cmd)
     # Gazebo model path adding / environmet variables
     ld.add_action(append_gazebo_model_path_env_models) 

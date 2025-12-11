@@ -216,22 +216,28 @@ void GazeboRosActorCommand::PreUpdate(
   this->lastUpdate_ = _info.simTime;
 
   auto trajPoseComp = _ecm.Component<gz::sim::components::TrajectoryPose>(this->actorEntity_);
-  auto actorPose = trajPoseComp->Data();
-  auto currentPose = actorPose;
+  auto trajectoryPose = trajPoseComp->Data();
+  auto currentPose = trajectoryPose;
 
   gz::math::Vector3d rpy = currentPose.Rot().Euler();
-
   gz::math::Pose3d newPose = currentPose;
 
+  // publish the global/world-frame pose 
   if (this->publishPose_ && this->posePub_.HasConnections()){
     auto now = _info.simTime;
     std::chrono::duration<double> periodSinceLast = now - this->lastPosePublishTime_;
+    if (periodSinceLast < std::chrono::duration<double>(1.0 / std::max(0.1, this->posePublishRate_))){
+      return;
+    }else{
+      auto actorBasePoseComp = _ecm.Component<gz::sim::components::Pose>(this->actorEntity_);
+      gz::math::Pose3d absolutePose = trajPoseComp->Data();
 
-    if (periodSinceLast >= std::chrono::duration<double>(1.0 / std::max(0.1, this->posePublishRate_)))
-    {
+      if (actorBasePoseComp) {
+        absolutePose = actorBasePoseComp->Data() + currentPose;
+      }
+      // Now publish safely
       gz::msgs::Pose msg;
-      gz::msgs::Set(&msg, newPose);   // newPose already contains the latest TrajectoryPose
-
+      gz::msgs::Set(&msg, absolutePose);
       this->posePub_.Publish(msg);
       this->lastPosePublishTime_ = now;
     }

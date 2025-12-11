@@ -5,6 +5,7 @@
   <xacro:arg name="gazebo_topic_prefix" default=""/>
   <xacro:arg name="follow_mode" default="velocity"/>
   <xacro:arg name="linear_velocity" default="3.0"/>
+  <xacro:arg name="publish_pose" default="true"/>
 
   <!-- Validate follow_mode -->
   <xacro:if value="${'$(arg follow_mode)' != 'velocity' and '$(arg follow_mode)' != 'path'}">
@@ -16,7 +17,7 @@
   <!-- Clean topic construction using expressions (no nested if/unless inside property) -->
   <xacro:property name="prefix" value="$(arg gazebo_topic_prefix)"/>
   <xacro:property name="name"   value="$(arg actor_name)"/>
-
+  <xacro:property name="publishpose" value="$(arg publish_pose)"/>
   <!-- Clean namespace handling -->
   <xacro:property name="ns" value="${prefix + '/' if prefix else ''}${name}" />
   <xacro:property name="vel_topic"  value="${ns}/cmd_vel" />
@@ -43,7 +44,7 @@
       <angular_velocity>2.5</angular_velocity>
       <default_rotation>1.57</default_rotation>
       <pose_topic>${pose_topic}</pose_topic> 
-      <publish_pose>true</publish_pose>
+      <publish_pose>${publishpose}</publish_pose>
       <pose_publish_rate>30</pose_publish_rate>
     </plugin>
   </actor>
