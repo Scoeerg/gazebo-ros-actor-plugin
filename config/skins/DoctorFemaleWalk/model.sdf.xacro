@@ -1,6 +1,5 @@
 <?xml version="1.0" ?>
 <sdf version="1.8" xmlns:xacro="http://ros.org/wiki/xacro">
-
   <!-- Arguments -->
   <xacro:arg name="actor_name" default="DoctorFemaleWalk"/>
   <xacro:arg name="gazebo_topic_prefix" default=""/>
@@ -22,8 +21,7 @@
   <xacro:property name="ns" value="${prefix + '/' if prefix else ''}${name}" />
   <xacro:property name="vel_topic"  value="${ns}/cmd_vel" />
   <xacro:property name="path_topic" value="${ns}/cmd_path" />
-
-  <!-- SDF output -->
+  <xacro:property name="pose_topic" value="${ns}/pose" />
   <actor name="$(arg actor_name)">
     <skin>
       <filename>model://config/skins/DoctorFemaleWalk/meshes/DoctorFemaleWalk.dae</filename>
@@ -34,8 +32,7 @@
       <scale>1.0</scale>
       <interpolate_x>true</interpolate_x>
     </animation>
-    <plugin filename="libgazebo_ros_actor_plugin.so"
-            name="gazebo_ros_actor_plugin::GazeboRosActorCommand">
+    <plugin filename="libgazebo_ros_actor_plugin.so" name="gazebo_ros_actor_plugin::GazeboRosActorCommand">
       <follow_mode>$(arg follow_mode)</follow_mode>
       <vel_topic>${vel_topic}</vel_topic>
       <path_topic>${path_topic}</path_topic>
@@ -45,6 +42,9 @@
       <angular_tolerance>0.0872</angular_tolerance>
       <angular_velocity>2.5</angular_velocity>
       <default_rotation>1.57</default_rotation>
+      <pose_topic>${pose_topic}</pose_topic> 
+      <publish_pose>true</publish_pose>
+      <pose_publish_rate>30</pose_publish_rate>
     </plugin>
   </actor>
 </sdf>

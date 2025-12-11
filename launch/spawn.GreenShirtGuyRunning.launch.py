@@ -143,6 +143,9 @@ def generate_launch_description():
             PythonExpression([
                 "'", model_name, "/cmd_path@geometry_msgs/msg/PoseArray]gz.msgs.Pose_V'"
             ]),
+            PythonExpression([
+                "'", model_name, "/pose@geometry_msgs/msg/Pose[gz.msgs.Pose'"
+            ]),
         ],
         namespace=namespace,
         output='screen'

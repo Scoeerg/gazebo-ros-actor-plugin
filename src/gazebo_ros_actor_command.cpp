@@ -59,6 +59,30 @@ void GazeboRosActorCommand::Configure(
   if (_sdf->HasElement("default_rotation")) {
     this->defaultRotation_ = _sdf->Get<double>("default_rotation");
   }
+  if (_sdf->HasElement("pose_topic")){
+    this->poseTopic_ = _sdf->Get<std::string>("pose_topic");
+  } else {
+    this->poseTopic_ = "pose";
+  }
+  if (_sdf->HasElement("publish_pose")) {
+    this->publishPose_ = _sdf->Get<bool>("publish_pose");
+  }
+  if (_sdf->HasElement("pose_publish_rate")) {
+    this->posePublishRate_ = _sdf->Get<double>("pose_publish_rate");
+  }
+
+  // Create the publisher
+  if (this->publishPose_) {
+    this->posePub_ = this->node_.Advertise<gz::msgs::Pose>(this->poseTopic_);
+    if (!this->posePub_) {
+      ignwarn << "Failed to advertise pose topic [" << this->poseTopic_ << "]. "
+              << "Pose will not be published." << std::endl;
+      this->publishPose_ = false;
+    } else {
+      ignmsg << "Publishing actor pose on [" << this->poseTopic_ << "] at "
+            << this->posePublishRate_ << " Hz" << std::endl;
+    }
+  }
 
   std::string animationName;
 
@@ -187,6 +211,7 @@ void GazeboRosActorCommand::PreUpdate(
 
   IGN_PROFILE("GazeboRosActorCommand::PreUpdate");
 
+
   std::chrono::duration<double> dt = _info.simTime - this->lastUpdate_;
   this->lastUpdate_ = _info.simTime;
 
@@ -197,6 +222,21 @@ void GazeboRosActorCommand::PreUpdate(
   gz::math::Vector3d rpy = currentPose.Rot().Euler();
 
   gz::math::Pose3d newPose = currentPose;
+
+  if (this->publishPose_ && this->posePub_.HasConnections()){
+    auto now = _info.simTime;
+    std::chrono::duration<double> periodSinceLast = now - this->lastPosePublishTime_;
+
+    if (periodSinceLast >= std::chrono::duration<double>(1.0 / std::max(0.1, this->posePublishRate_)))
+    {
+      gz::msgs::Pose msg;
+      gz::msgs::Set(&msg, newPose);   // newPose already contains the latest TrajectoryPose
+
+      this->posePub_.Publish(msg);
+      this->lastPosePublishTime_ = now;
+    }
+  }
+
   double distanceTraveled = 0.0;
 
   if (this->followMode_ == "path") {

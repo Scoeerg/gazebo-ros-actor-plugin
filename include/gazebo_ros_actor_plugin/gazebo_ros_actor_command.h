@@ -53,8 +53,10 @@ class GazeboRosActorCommand :
    void ChooseNewTarget();
 
    gz::transport::Node node_;
+   gz::transport::Node::Publisher posePub_;
    std::string velTopic_;
    std::string pathTopic_;
+   std::string poseTopic_;
    gz::sim::Entity actorEntity_;
    double animationFactor_;
    std::chrono::steady_clock::duration lastUpdate_;
@@ -72,6 +74,9 @@ class GazeboRosActorCommand :
    std::queue<std::vector<gz::math::Vector3d>> pathQueue_;
    std::mutex mutex_;
    bool pathCompletedLogged_;
+   bool publishPose_{true};
+   double posePublishRate_{20.0};
+   std::chrono::steady_clock::duration lastPosePublishTime_{0};
 };
 
 } // namespace gazebo_ros_actor_plugin
