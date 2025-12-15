@@ -76,6 +76,7 @@ class GazeboRosActorCommand :
    bool pathCompletedLogged_;
    bool publishPose_{true};
    double posePublishRate_{20.0};
+   gz::math::Pose3d pose_offset;
    std::chrono::steady_clock::duration lastPosePublishTime_{0};
 };
 

@@ -27,6 +27,7 @@ def generate_launch_description():
     follow_mode = LaunchConfiguration('follow_mode', default='velocity')
     linear_velocity = LaunchConfiguration('max_velocity', default='1.0')
     publish_pose = LaunchConfiguration('publish_pose', default='true')
+    pose_publish_rate = LaunchConfiguration('pose_publish_rate', default='30.0')
     gazebo_topic_prefix = LaunchConfiguration('gazebo_topic_prefix', default='')
     gazebo_resource_path = LaunchConfiguration('gazebo_resource_path')
 
@@ -102,6 +103,12 @@ def generate_launch_description():
         description='If Actor should publish its gazebo-world-frame pose to a topic.'
     )
 
+    declare_pose_publish_rate_cmd = DeclareLaunchArgument(
+        name='pose_publish_rate',
+        default_value='30.0',
+        description='Publishing rate of the actor pose in Hz.'
+    )
+
     declare_gazebo_topic_prefix_cmd = DeclareLaunchArgument(
         name='gazebo_topic_prefix',
         default_value='',
@@ -115,6 +122,13 @@ def generate_launch_description():
         ' follow_mode:=', follow_mode,
         ' linear_velocity:=', linear_velocity,
         ' publish_pose:=', publish_pose,
+        ' pose_publish_rate:=', pose_publish_rate,
+        ' pose_offset_x:=', x_pose,
+        ' pose_offset_y:=', y_pose,
+        ' pose_offset_z:=', z_pose,
+        ' pose_offset_roll:=', roll_pose,
+        ' pose_offset_pitch:=', pitch_pose,
+        ' pose_offset_yaw:=', yaw_pose
     ])
 
     # add to environment 
@@ -176,6 +190,7 @@ def generate_launch_description():
     ld.add_action(declare_follow_mode_cmd)
     ld.add_action(declare_max_velocity_cmd)
     ld.add_action(declare_publish_pose_cmd)
+    ld.add_action(declare_pose_publish_rate_cmd)
     ld.add_action(declare_gazebo_topic_prefix_cmd)
     # Gazebo model path adding / environmet variables
     ld.add_action(append_gazebo_model_path_env_models) 

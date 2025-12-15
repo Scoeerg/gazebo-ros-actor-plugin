@@ -71,6 +71,35 @@ void GazeboRosActorCommand::Configure(
     this->posePublishRate_ = _sdf->Get<double>("pose_publish_rate");
   }
 
+  double offset_x = 0.0;
+  double offset_y = 0.0;
+  double offset_z = 0.0;
+  double offset_roll = 0.0;
+  double offset_pitch = 0.0;
+  double offset_yaw = 0.0;
+  if (_sdf->HasElement("pose_offset_x")) {
+    offset_x = _sdf->Get<double>("pose_offset_x");
+  }
+  if (_sdf->HasElement("pose_offset_y")) {
+    offset_y = _sdf->Get<double>("pose_offset_y");
+  }
+  if (_sdf->HasElement("pose_offset_z")) {
+    offset_z = _sdf->Get<double>("pose_offset_z");
+  }
+  if (_sdf->HasElement("pose_offset_roll")) {
+    offset_roll = _sdf->Get<double>("pose_offset_roll");
+  }
+  if (_sdf->HasElement("pose_offset_pitch")) {
+    offset_pitch = _sdf->Get<double>("pose_offset_pitch");
+  }
+  if (_sdf->HasElement("pose_offset_yaw")) {
+    offset_yaw = _sdf->Get<double>("pose_offset_yaw");
+  }
+  this->pose_offset = gz::math::Pose3d(
+    offset_x, offset_y, offset_z,
+    offset_roll, offset_pitch, offset_yaw
+  );
+
   // Create the publisher
   if (this->publishPose_) {
     this->posePub_ = this->node_.Advertise<gz::msgs::Pose>(this->poseTopic_);
@@ -83,6 +112,8 @@ void GazeboRosActorCommand::Configure(
             << this->posePublishRate_ << " Hz" << std::endl;
     }
   }
+
+
 
   std::string animationName;
 
@@ -229,12 +260,7 @@ void GazeboRosActorCommand::PreUpdate(
     if (periodSinceLast < std::chrono::duration<double>(1.0 / std::max(0.1, this->posePublishRate_))){
       return;
     }else{
-      auto actorBasePoseComp = _ecm.Component<gz::sim::components::Pose>(this->actorEntity_);
-      gz::math::Pose3d absolutePose = trajPoseComp->Data();
-
-      if (actorBasePoseComp) {
-        absolutePose = actorBasePoseComp->Data() + currentPose;
-      }
+      gz::math::Pose3d absolutePose = currentPose + this->pose_offset;
       // Now publish safely
       gz::msgs::Pose msg;
       gz::msgs::Set(&msg, absolutePose);
