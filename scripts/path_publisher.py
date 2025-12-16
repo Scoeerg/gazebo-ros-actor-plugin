@@ -28,7 +28,7 @@ class PoseArrayPublisher(Node):
         
         # Set the header for the PoseArray message
         pose_array_msg.header.stamp = self.get_clock().now().to_msg()
-        pose_array_msg.header.frame_id = "map"
+        pose_array_msg.header.frame_id = ""
         
         # Create the Pose messages for each waypoint
         num_waypoints = 10  # Number of waypoints on the path
