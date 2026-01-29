@@ -53,7 +53,7 @@
       <follow_mode>$(arg follow_mode)</follow_mode>
       <vel_topic>${vel_topic}</vel_topic>
       <path_topic>${path_topic}</path_topic>
-      <animation_factor>1.0</animation_factor>
+      <animation_factor>2.0</animation_factor>
       <linear_tolerance>0.1</linear_tolerance>
       <linear_velocity>$(arg linear_velocity)</linear_velocity>
       <angular_tolerance>0.0872</angular_tolerance>
