@@ -170,6 +170,12 @@ def generate_launch_description():
                 "'", model_name, "/pose@geometry_msgs/msg/Pose[gz.msgs.Pose'"
             ]),
         ],
+        parameters=[{
+            'qos_overrides./cmd_path.subscription.durability': 'transient_local',
+            'qos_overrides./cmd_path.subscription.reliability': 'reliable',
+            'qos_overrides./cmd_path.subscription.history': 'keep_last',
+            'qos_overrides./cmd_path.subscription.depth': 1,
+        }],
         namespace=namespace,
         output='screen'
     )
