@@ -3,6 +3,7 @@ import math
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Point, Quaternion, PoseArray, Pose
+from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy, QoSHistoryPolicy
 
 
 class PoseArrayPublisher(Node):
@@ -38,7 +39,13 @@ class PoseArrayPublisher(Node):
             self.waypoints.append((x, y, z, roll, pitch, yaw))
 
         # Publisher
-        self.publisher = self.create_publisher(PoseArray, self.get_parameter('topic').value, 10)
+        qos_profile = QoSProfile(
+            reliability=QoSReliabilityPolicy.RELIABLE,
+            durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1  # Depth of 1 is typical for latched topics
+        )
+        self.publisher = self.create_publisher(PoseArray, self.get_parameter('topic').value, qos_profile)
         self.get_logger().info('PoseArray publisher node started')
 
     def publish_pose_array(self):
@@ -56,6 +63,7 @@ class PoseArrayPublisher(Node):
             pose_array_msg.poses.append(pose)
 
         self.publisher.publish(pose_array_msg)
+        self.get_logger().info(f'Publishing to topic {self.publisher.topic_name}')
         self.get_logger().info(f'Published PoseArray with {len(self.waypoints)} poses')
 
     def euler_to_quaternion(self, roll, pitch, yaw):
